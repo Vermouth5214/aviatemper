@@ -156,12 +156,20 @@
 					type: "GET",
 					url: url,
 					success: function(response){ 
-						if (response.status){
-							$("#name").html("<h5>"+response.name+"</h5>");
-						} else {
-							$("#name").html('<h5>Not Found</h5>');
+						if(typeof response=="object")
+						{
+							if (response.status){
+								$("#name").html("<h5>"+response.name+"</h5>");
+							} else {
+								$("#name").html('<h5>Not Found</h5>');
+							}
+							$('#temperature').focus();
 						}
-						$('#temperature').focus();
+						else
+						{
+							alert('Session expired. Please relogin');
+							window.location.reload(true);
+						}						
 					}, 
 					error: function(response){
 						console.log(response);
@@ -235,7 +243,13 @@
 						$("#name").html('');
 						$('#search-name').val('');
 						$('#temperature').val('');
-
+						
+						var mode = $('input[name="mode"]:checked').val();
+						if (mode == "name"){
+							$('#search-name').select2({
+								closeOnSelect: true
+							});
+						}
 					}
 					else {
 						$('.error-alert').html("");

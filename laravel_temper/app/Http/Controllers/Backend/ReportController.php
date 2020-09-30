@@ -76,7 +76,7 @@ class ReportController extends Controller {
         }
 
         $query = '
-            SELECT lokasi, count(id) as total, date(created_at) as created_at FROM avia_temperature.temperature
+            SELECT lokasi, count(id) as total, date(created_at) as created_at FROM temperature
         ';
         if ($mode != "all"){
             $query = $query . " where ((created_at >= '".date('Y-m-d 00:00:00',strtotime($startDate)). "' and created_at <= '".date('Y-m-d 23:59:59',strtotime($endDate))."'))";

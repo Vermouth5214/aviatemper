@@ -82,6 +82,7 @@ class LoginController extends Controller {
 				$info['email'] = $check->email;
 				$info['reldag'] = $check->reldag;
 				$info['tipe'] = $check->tipe;
+				$info['pt'] = $check->user;
 
 				$lokasi = Lokasi::find($check->lokasi);
 				if ($lokasi){

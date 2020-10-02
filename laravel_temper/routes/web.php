@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Model\UserLogin;
+use App\Model\Lokasi;
 
 /*
 |--------------------------------------------------------------------------
@@ -12,10 +14,6 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
-Route::get('/', function () {
-    return view('index');
-});
 
 Route::get('/', function () {
 	return redirect('backend/login');
@@ -32,6 +30,22 @@ Route::group(array('prefix' => 'backend','middleware'=> ['token_super_admin']), 
 
     Route::get('/user/datatable','Backend\UserLoginController@datatable');
     Route::resource('user', 'Backend\UserLoginController');
+
+    Route::get('/insert-user', function () {
+        $lokasi = Lokasi::where('kode_lokasi','<>','000')->where('kode_lokasi','<>','KLI')->where('kode_lokasi','<>','SDK')->get();
+        foreach ($lokasi as $lokasi):
+            $insert = new Userlogin();
+            $insert->username = $lokasi->kode_lokasi;
+            $insert->password = '827ccb0eea8a706c4c34a16891f84e7b';
+            $insert->name = $lokasi->nama_lokasi;
+            $insert->user_level = 'USER';
+            $insert->tipe = 'LAIN';
+            $insert->user_modified = 'donny';
+            $insert->reldag = $lokasi->kode_lokasi;
+            $insert->lokasi = $lokasi->id;
+            $insert->save();
+        endforeach;
+    });
 });
 
 
@@ -62,3 +76,18 @@ Route::group(array('prefix' => 'backend','middleware'=> ['token_all']), function
 
 });
 
+
+Route::group(array('prefix' => 'backend','middleware'=> ['token_it_tirta']), function()
+{
+    Route::get('/usert/datatable','Backend\UserTLoginController@datatable');
+    Route::resource('usert', 'Backend\UserTLoginController');
+
+});
+
+Route::group(array('prefix' => 'backend','middleware'=> ['token_hrd_tirta']), function()
+{
+	Route::get('/general-reportt/datatable','Backend\ReportTController@datatable');
+	Route::get('/general-reportt','Backend\ReportTController@generalReport');
+	Route::get('/general-reportt/{lokasi}/{tanggal}/export','Backend\ReportTController@export');
+	Route::get('/general-reportt/{lokasi}/{tanggal}','Backend\ReportTController@show');
+});

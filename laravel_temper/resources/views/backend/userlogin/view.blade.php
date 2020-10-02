@@ -11,7 +11,26 @@
             <span class="form-control"><?=$data->username;?></span>
     
             <label>Level :</label>
-            <span class="form-control"><?=$data->name;?></span>
+            <span class="form-control">
+                <?php
+                    $text = '';
+                    if ($data->user_level == "VSUPER"){
+                        $text = "SUPER ADMIN";
+                    } else 
+                    if ($data->user_level == "VADM"){
+                        $text = "ADMIN";
+                    } else 
+                    if ($data->user_level == "VTTIRTA"){
+                        $text = "IT TIRTA";
+                    } else 
+                    if ($data->user_level == "VHTIRTA"){
+                        $text = "HRD TIRTA";
+                    } else {
+                        $text = $data->user_level;
+                    }
+                    echo $text;
+                ?>
+            </span>
 
             <label>Name :</label>
     		<span class="form-control"><?=$data->name;?></span>

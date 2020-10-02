@@ -33,6 +33,9 @@
         <?php
             $i = 1;
             foreach ($data as $item):
+                $userinfo = Session::get('userinfo');
+                if ((($userinfo['priv'] == 'VTTIRTA') || ($userinfo['priv'] == 'VHTIRTA')) && ($lokasi == "PUSAT")){
+                    if (in_array($item->name, $data_pusat)):
         ?>
                 <tr>
                     <td align='right' ><?=$i;?></td>
@@ -43,6 +46,19 @@
                 </tr>
         <?php
                 $i++;
+            endif;
+        } else {
+        ?>
+            <tr>
+                <td align='right' ><?=$i;?></td>
+                <td ><?=$item->name;?></td>
+                <td ><?=$item->temperature;?></td>
+                <td ><?=date('H:i:s', strtotime($item->created_at));?></td>
+                <td ><?=$item->created_by;?></td>
+            </tr>
+        <?php
+                $i++;
+                }
             endforeach;
         ?>
     </tbody>

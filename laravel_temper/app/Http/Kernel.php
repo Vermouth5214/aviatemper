@@ -66,5 +66,7 @@ class Kernel extends HttpKernel
         'token_all' => \App\Http\Middleware\TokenAllMiddleware::class,
         'token_admin' => \App\Http\Middleware\TokenAdminMiddleware::class,
         'token_super_admin' => \App\Http\Middleware\TokenSuperAdminMiddleware::class,
+        'token_it_tirta' => \App\Http\Middleware\TokenITTirtaMiddleware::class,
+        'token_hrd_tirta' => \App\Http\Middleware\TokenHRDTirtaMiddleware::class,
     ];
 }

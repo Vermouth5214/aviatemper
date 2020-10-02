@@ -86,6 +86,7 @@ class UserLoginController extends Controller
                     $data->name = $request->name;
                     $data->email = $request->email;
                     $data->lokasi = $request->lokasi;
+                    $data->user = $request->user;
                     $data->user_modified = Session::get('userinfo')['username'];
                     if($data->save()){
                         return Redirect::to('/backend/user/')->with('success', "Data saved successfully")->with('mode', 'success');
@@ -101,6 +102,7 @@ class UserLoginController extends Controller
                 $data->name = $request->name;
                 $data->email = $request->email;
                 $data->lokasi = $request->lokasi;
+                $data->user = $request->user;
                 $data->user_modified = Session::get('userinfo')['username'];
                 if($data->save()){
                     return Redirect::to('/backend/user/')->with('success', "Data saved successfully")->with('mode', 'success');
@@ -174,6 +176,7 @@ class UserLoginController extends Controller
                     $data->name = $request->name;
                     $data->email = $request->email;
                     $data->lokasi = $request->lokasi;
+                    $data->user = $request->user;
                     $data->user_modified = Session::get('userinfo')['username'];
                     if($data->save()){
                         return Redirect::to('/backend/user/')->with('success', "Data saved successfully")->with('mode', 'success');
@@ -191,6 +194,7 @@ class UserLoginController extends Controller
                 $data->name = $request->name;
                 $data->email = $request->email;
                 $data->lokasi = $request->lokasi;
+                $data->user = $request->user;
                 $data->user_modified = Session::get('userinfo')['username'];
                 if($data->save()){
                     return Redirect::to('/backend/user/')->with('success', "Data saved successfully")->with('mode', 'success');
@@ -220,6 +224,12 @@ class UserLoginController extends Controller
                 } else 
                 if ($data->user_level == "VADM"){
                     return "ADMIN";
+                } else 
+                if ($data->user_level == "VTTIRTA"){
+                    return "IT TIRTA";
+                } else 
+                if ($data->user_level == "VHTIRTA"){
+                    return "HRD TIRTA";
                 } else {
                     return $data->user_level;
                 }

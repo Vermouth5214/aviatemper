@@ -29,33 +29,15 @@
 <!-- CONTENT -->
 @section('content')
     <?php
-		$tipe = old('tipe');
-		$user = old('user');
-        $username = old('username');
-		$user_level = old('user_level');
-		$tipe = old('tipe');
-		$reldag = old('reldag');
-		$area = old('area');
-        $name = old('name');
-		$email = old('email');
-		$lokasi = old('lokasi');
-		$method = "POST";
-		$mode = "Create";
-		$url = "backend/user/";
 		if (isset($data)){
 			$tipe = $data[0]->tipe;
 			$user = $data[0]->user;
             $username = $data[0]->username;
 			$user_level = $data[0]->user_level;
-			$tipe = $data[0]->tipe;
-			$reldag = $data[0]->reldag;
-			$area = $data[0]->area;
-            $name = $data[0]->name;
-			$email = $data[0]->email;
-			$lokasi = $data[0]->lokasi;
+			$name = $data[0]->name;
 			$method = "PUT";
 			$mode = "Edit";
-			$url = "backend/user/".$data[0]->id;
+			$url = "backend/usert/".$data[0]->id;
 		}
 	?>
 	<div class="page-title">
@@ -64,7 +46,7 @@
 		</div>
 		<div class="title_right">
 			<div class="col-md-4 col-sm-4 col-xs-8 form-group pull-right top_search">
-                @include('backend.elements.back_button',array('url' => '/backend/user'))
+                @include('backend.elements.back_button',array('url' => '/backend/usert'))
 			</div>
         </div>
         <div class="clearfix"></div>
@@ -89,37 +71,30 @@
 					{{ Form::open(['url' => $url, 'method' => $method,'class' => 'form-horizontal form-label-left']) }}
 						{!! csrf_field() !!}
 						<div class="item form-group">
-							<label class="control-label col-sm-3 col-xs-12">Type </label>
-							<div class="col-sm-3 col-xs-12">
-								{{
-								Form::select(
-									'tipe',
-									['AD' => 'ACTIVE DIRECTORY', 'AGEN' => 'AGEN', 'LAIN' => 'LAIN'],
-									$tipe,
-									array(
-										'class' => 'form-control',
-									))
-								}}
-							</div>
-                        </div>
-						<div class="item form-group">
 							<label class="control-label col-sm-3 col-xs-12">Username <span class="required">*</span></label>
-							<div class="col-sm-3 col-xs-12">
-								<input type="text" name="username" required="required" class="form-control" value="<?=$username;?>" autofocus>
+							<div class="col-sm-3">
+								<?=$username;?>
 							</div>
 						</div>
 						<div class="item form-group">
 							<label class="control-label col-sm-3 col-xs-12">Level </label>
-							<div class="col-sm-3 col-xs-12">
-								{{
-								Form::select(
-									'user_level',
-									['USER' => 'USER', 'VADM' => 'ADMIN', 'VSUPER' => 'SUPER ADMIN', 'VHTIRTA' => 'HRD TIRTA', 'VTTIRTA' => 'IT TIRTA'],
-									$user_level,
-									array(
-										'class' => 'form-control',
-									))
-								}}
+							<div class="col-sm-3">
+								<?php
+									if ($user_level == "VSUPER"){
+										echo "SUPER ADMIN";
+									} else 
+									if ($user_level == "VADM"){
+										echo "ADMIN";
+									} else 
+									if ($user_level == "VTTIRTA"){
+										echo "IT TIRTA";
+									} else 
+									if ($user_level == "VHTIRTA"){
+										echo "HRD TIRTA";
+									} else {
+										echo $user_level;
+									}
+								?>
 							</div>
                         </div>
 						<div class="item form-group">
@@ -134,7 +109,7 @@
 						<div class="item form-group">
 							<label class="control-label col-sm-3 col-xs-12">Password<br/><small>default 12345</small></label>
 							<div class="col-sm-4 col-xs-12">
-								<input type="password" id="password" name="pwd" class="form-control hide">
+								<input type="password" id="password" name="pwd" class="form-control d-none">
 								<input type="checkbox" id="password_check" name="password_check" value="1">
 								Change Password
 							</div>
@@ -143,50 +118,15 @@
 							endif;
 						?>
 						<div class="item form-group">
-							<label class="control-label col-sm-3 col-xs-12">Reldag</label>
-							<div class="col-sm-3 col-xs-12">
-								<input type="text" name="reldag" class="form-control" value="<?=$reldag;?>">
-							</div>
-                        </div>
-						<div class="item form-group">
-							<label class="control-label col-sm-3 col-xs-12">Email <span class="required">*</span></label>
-							<div class="col-sm-5 col-xs-12">
-								<input type="text" name="email" class="form-control" value="<?=$email;?>" autofocus>
-							</div>
-						</div>
-						<div class="item form-group">
 							<label class="control-label col-sm-3 col-xs-12">Lokasi </label>
 							<div class="col-sm-3 col-xs-12">
-								{{
-								Form::select(
-									'lokasi',
-									$lokasi_all,
-									$lokasi,
-									array(
-										'class' => 'form-control',
-										'id' => 'lokasi'
-									))
-								}}
-							</div>
-                        </div>
-						<div class="item form-group">
-							<label class="control-label col-sm-3 col-xs-12">PT </label>
-							<div class="col-sm-3 col-xs-12">
-								{{
-								Form::select(
-									'user',
-									['AVIAN' => 'AVIAN', 'TIRTA' => 'TIRTA'],
-									$user,
-									array(
-										'class' => 'form-control',
-									))
-								}}
+								<?=$lokasi->nama_lokasi;?>
 							</div>
                         </div>
 						<div class="ln_solid"></div>
 						<div class="item form-group">
 							<div class="col-sm-6 col-xs-12 offset-sm-3">
-								<a href="<?=url('/backend/user')?>" class="btn btn-warning">Cancel</a>
+								<a href="<?=url('/backend/usert')?>" class="btn btn-warning">Cancel</a>
 								<button type="submit" class="btn btn-primary">Submit </button>
 							</div>
 						</div>
@@ -210,10 +150,10 @@
 		$('#lokasi').select2();
 		$("#password_check").on("change", function(){
 			if($(this).prop('checked') == true){
-				$("#password").removeClass("hide");
+				$("#password").removeClass("d-none");
 				$("#password").prop('required',true);
 			} else {
-				$("#password").addClass("hide");
+				$("#password").addClass("d-none");
 				$("#password").prop('required',false);
 			}
 		});

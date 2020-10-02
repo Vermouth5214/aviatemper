@@ -86,7 +86,7 @@
 								{{
 								Form::select(
 									'posisi',
-									['SECURITY' => 'SECURITY', 'GARDENER' => 'GARDENER', 'AC' => 'AC', 'CLEANING SERVICE' => 'CLEANING SERVICE' , 'GONDOLA' => 'GONDOLA', 'PEST CONTROL' => 'PEST CONTROL'],
+									['SECURITY' => 'SECURITY', 'GARDENER' => 'GARDENER', 'AC' => 'AC', 'CLEANING SERVICE' => 'CLEANING SERVICE' , 'GONDOLA' => 'GONDOLA', 'PEST CONTROL' => 'PEST CONTROL', 'DRIVER' => 'DRIVER'],
 									$posisi,
 									array(
 										'class' => 'form-control',

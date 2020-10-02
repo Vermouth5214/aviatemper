@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Controllers\Backend;
 
 use Session;
@@ -14,8 +13,12 @@ use App\Model\Temperature;
 
 class InputController extends Controller {
 	public function index(Request $request) {
+		$userinfo = Session::get('userinfo');
+		if (($userinfo['priv'] == 'VTTIRTA') || ($userinfo['priv'] == 'VHTIRTA')){
+			return redirect('/backend/general-reportt');
+		}
+
 		$mode = "";
-		$userinfo = Session::get('userinfo' );
 		$lokasi = $userinfo['lokasi'];
 		if (substr($lokasi,0,5) == "PUSAT"){
 			//ambil data pusat

@@ -15,12 +15,12 @@ use Datatables;
 use App\Exports\ExportExcell;
 use Excel;
 
-class ReportController extends Controller {
+class ReportTController extends Controller {
 	public function generalReport(Request $request) {
     	$startDate = date('d-m-Y');
         $endDate = date('d-m-Y');
         $mode = "limited";
-        $location = "All";
+        $location = "PUSAT";
 
         if (isset($_GET["startDate"]) || isset($_GET["endDate"]) || isset($_GET["status"]) || isset($_GET["mode"])){
 			if ((isset($_GET['startDate'])) && ($_GET['startDate'] != "")){
@@ -41,9 +41,6 @@ class ReportController extends Controller {
         
 		$userinfo = Session::get('userinfo' );
         $lokasi = $userinfo['lokasi'];
-        if ($userinfo['priv'] != "VSUPER"){
-            $location = $lokasi;
-        }
 
         view()->share('startDate', $startDate);
         view()->share('endDate', $endDate);
@@ -51,7 +48,7 @@ class ReportController extends Controller {
         view()->share('location', $location);
         view()->share('location_all', $location_all);
 
-		return view ('backend.report.general');
+		return view ('backend.TIRTA.report.general');
 	}
 
 	public function datatable() {
@@ -86,6 +83,28 @@ class ReportController extends Controller {
             $query = $query . " and lokasi='".$location."'";
         }
 
+		$userinfo = Session::get('userinfo');
+		if (($userinfo['priv'] == 'VTTIRTA') || ($userinfo['priv'] == 'VHTIRTA')){
+            if ((strtoupper($location) == "PUSAT")){
+                $data = DB::connection('DB-ORANGE')->select("
+                    SELECT UPPER(NAMA) AS NAMA
+                    FROM View_IT_All_Karyawan_Aktif vka 
+                    LEFT JOIN cabang c ON vka.CABANG = c.Name 
+                    WHERE 
+                        CASE WHEN VKA.CABANG LIKE '%DEAN%' THEN REPLACE(VKA.CABANG,' DEAN','') 
+                                WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
+                                WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
+                          END LIKE 'PUSAT%'
+                ");
+                $query = $query . " and name in (";
+                foreach ($data as $pegawai):
+                    $query = $query . "'".$pegawai->NAMA."',";
+                endforeach;
+                $query = substr($query, 0, -1);
+                $query = $query . ")";
+            }
+        }
+
         $query = $query . " group by lokasi, date(created_at)";
 
         $data = collect(DB::connection('mysql')
@@ -98,8 +117,8 @@ class ReportController extends Controller {
             ->addColumn('action', function ($data) {
 				$segment =  \Request::segment(2);
 
-                $url = url('backend/general-report/'.$data->lokasi.'/'.$data->created_at);
-                $url_export = url('backend/general-report/'.$data->lokasi.'/'.$data->created_at.'/export');
+                $url = url('backend/general-reportt/'.$data->lokasi.'/'.$data->created_at);
+                $url_export = url('backend/general-reportt/'.$data->lokasi.'/'.$data->created_at.'/export');
 
                 $view = "<a class='btn-action btn btn-primary' href='".$url."' title='View'><i class='fa fa-eye'></i></a>";
                 $export = "<a class='btn-action btn btn-success' href='".$url_export."' title='Export'>Export</a>";
@@ -114,10 +133,29 @@ class ReportController extends Controller {
     {
         //
         $data  = Temperature::where('lokasi', $lokasi)->where(DB::raw('date(created_at)'), $tanggal )->orderBy('lokasi','ASC')->orderBy('created_at','ASC')->get();
+        $data_pusat = [];
         if (count($data)){
+            $userinfo = Session::get('userinfo');
+            if (($userinfo['priv'] == 'VTTIRTA') || ($userinfo['priv'] == 'VHTIRTA')){
+                $data_pegawai = DB::connection('DB-ORANGE')->select("
+                    SELECT UPPER(NAMA) AS NAMA
+                    FROM View_IT_All_Karyawan_Aktif vka 
+                    LEFT JOIN cabang c ON vka.CABANG = c.Name 
+                    WHERE 
+                        CASE WHEN VKA.CABANG LIKE '%DEAN%' THEN REPLACE(VKA.CABANG,' DEAN','') 
+                                WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
+                                WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
+                            END LIKE 'PUSAT%'
+                ");
+                foreach ($data_pegawai as $pegawai):
+                    array_push($data_pusat, $pegawai->NAMA);
+                endforeach;
+            }
+
             view()->share('lokasi', $lokasi);
             view()->share('tanggal', $tanggal);
-            return view ('backend.report.view', ['data' => $data]);
+            view()->share('data_pusat', $data_pusat);
+            return view ('backend.TIRTA.report.view', ['data' => $data]);
         }
 		
     }
@@ -127,7 +165,7 @@ class ReportController extends Controller {
         if ($data->count()){
             return Excel::download(new ExportExcell($lokasi, $tanggal), $lokasi.'_'.date('d-m-Y H:i:s').'.xlsx');
         } else {
-            return Redirect::to('/backend/general-report/')->with('success', "Invalid Data")->with('mode', 'danger');
+            return Redirect::to('/backend/general-reportt/')->with('success', "Invalid Data")->with('mode', 'danger');
         }
     }
 

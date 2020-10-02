@@ -27,14 +27,47 @@
     <div class="menu_section">
         <h3>GENERAL</h3>
 		<ul class="nav side-menu">
-                    <li class="{{ ($segment == 'change-password' ? 'active' : '') }}">
-                        <a href="<?=url('backend/change-password');?>"><i class="fa fa-ticket"></i> Change Password</a>
-                    </li>
+            <li class="{{ ($segment == 'change-password' ? 'active' : '') }}">
+                <a href="<?=url('backend/change-password');?>"><i class="fa fa-ticket"></i> Change Password</a>
+            </li>
         </ul>
     </div>
     <?php
         endif;
     ?>
+
+    <?php
+        // IT TIRTA //
+        if ($userinfo['priv'] == "VTTIRTA"):
+    ?>
+            <div class="menu_section">
+                <h3>MASTER</h3>
+                <ul class="nav side-menu">
+                    <li class="{{ ($segment == 'usert' ? 'active' : '') }}">
+                        <a href="<?=url('backend/usert');?>"><i class="fa fa-users"></i> Master User</a>
+                    </li>
+                </ul>
+            </div>
+    <?php
+        endif;
+    ?>
+
+    <?php
+        // SUPER ADMIN //
+        if (($userinfo['priv'] == "VTTIRTA") || ($userinfo['priv'] == "VHTIRTA")):
+    ?>
+    <div class="menu_section">
+        <h3>REPORT</h3>
+		<ul class="nav side-menu">
+            <li class="{{ ($segment == 'general-reportt' ? 'active' : '') }}">
+                <a href="<?=url('backend/general-reportt');?>"><i class="fa fa-table"></i> General Report</a>
+            </li>
+        </ul>
+    </div>
+    <?php
+        endif;
+    ?>
+
 
     <?php
         // SUPER ADMIN //
@@ -60,6 +93,10 @@
     <?php
         endif;
     ?>
+    <?php
+        // SUPER ADMIN //
+        if (($userinfo['priv'] != "VTTIRTA") && ($userinfo['priv'] != "VHTIRTA")):
+    ?>
     <div class="menu_section">
         <h3>INPUT</h3>
 		<ul class="nav side-menu">
@@ -68,6 +105,9 @@
             </li>
         </ul>
     </div>
+    <?php
+        endif;
+    ?>
     <?php
         // SUPER ADMIN //
         if (($userinfo['priv'] == "VSUPER") || ($userinfo['priv'] == "VADM")):

@@ -216,7 +216,8 @@ class UserLoginController extends Controller
 	
 	public function datatable() {	
         $data = UserLogin::select(['lokasi.nama_lokasi','user_login.*'])
-                    ->leftJoin('lokasi','lokasi.id','user_login.lokasi');
+                    ->leftJoin('lokasi','lokasi.id','user_login.lokasi')
+                    ->get();
         return Datatables::of($data)
             ->editColumn('user_level', function($data) {
                 if ($data->user_level == "VSUPER"){

@@ -32,6 +32,15 @@
 			<div class="x_panel">
 				<div class="x_content">
 					<?php
+						if ($changed):
+					?>
+							<div class="alert alert-danger alert-dismissible fade show w-100" role="alert">					
+								Password masih default. Harap segera ganti password anda.<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+							</div>
+					<?php
+						endif;
+					?>
+					<?php
 						if (Session::has('data')){
 							$alert = "success";
 							$data = Session::get('data');
@@ -50,19 +59,19 @@
 						<div class="item form-group">
 							<label class="control-label col-sm-3">Old Password <span class="required">*</span></label>
 							<div class="col-sm-6">
-								<input type="password" name="old_pass" required="required" class="form-control" autofocus minlength=3 maxlength=15>
+								<input type="password" name="old_pass" required="required" class="form-control" autofocus minlength=5 maxlength=15>
 							</div>
 						</div>
 						<div class="item form-group">
 							<label class="control-label col-sm-3">New Password <span class="required">*</span></label>
 							<div class="col-sm-6">
-								<input type="password" name="new_pass" required="required" class="form-control" minlength=3 maxlength=15>
+								<input type="password" name="new_pass" required="required" class="form-control" minlength=5 maxlength=15>
 							</div>
 						</div>
 						<div class="item form-group">
 							<label class="control-label col-sm-3">Confirm New Password <span class="required">*</span></label>
 							<div class="col-sm-6">
-								<input type="password" name="confirm_new_pass" required="required" class="form-control" minlength=3 maxlength=15>
+								<input type="password" name="confirm_new_pass" required="required" class="form-control" minlength=5 maxlength=15>
 							</div>
 						</div>
 						<div class="ln_solid"></div>

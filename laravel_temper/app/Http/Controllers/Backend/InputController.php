@@ -10,12 +10,19 @@ use Illuminate\Http\JsonResponse;
 use DB;
 use Redirect;
 use App\Model\Temperature;
+use App\Model\UserLogin;
 
 class InputController extends Controller {
 	public function index(Request $request) {
 		$userinfo = Session::get('userinfo');
 		if (($userinfo['priv'] == 'VTTIRTA') || ($userinfo['priv'] == 'VHTIRTA')){
 			return redirect('/backend/general-reportt');
+		}
+
+		//CEK JIKA USER TIRTA MENGGUNAKAN PASSWORD DEFAULT
+		$user = UserLogin::where('username',$userinfo['username'])->get();
+		if (($userinfo['priv'] == "USER") && ($userinfo['pt'] == "TIRTA") && (md5('12345') == $user[0]->password)) {
+			return redirect('/backend/change-password');
 		}
 
 		$mode = "";

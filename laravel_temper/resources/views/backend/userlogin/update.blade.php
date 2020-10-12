@@ -134,7 +134,7 @@
 						<div class="item form-group">
 							<label class="control-label col-sm-3 col-xs-12">Password<br/><small>default 12345</small></label>
 							<div class="col-sm-4 col-xs-12">
-								<input type="password" id="password" name="pwd" class="form-control hide">
+								<input type="password" id="password" name="pwd" class="form-control d-none">
 								<input type="checkbox" id="password_check" name="password_check" value="1">
 								Change Password
 							</div>
@@ -210,10 +210,10 @@
 		$('#lokasi').select2();
 		$("#password_check").on("change", function(){
 			if($(this).prop('checked') == true){
-				$("#password").removeClass("hide");
+				$("#password").removeClass("d-none");
 				$("#password").prop('required',true);
 			} else {
-				$("#password").addClass("hide");
+				$("#password").addClass("d-none");
 				$("#password").prop('required',false);
 			}
 		});

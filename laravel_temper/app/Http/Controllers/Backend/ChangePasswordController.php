@@ -14,6 +14,14 @@ class ChangePasswordController extends Controller {
 	public function change_password() {
 		$userinfo = Session::get('userinfo');
 		if ($userinfo['tipe'] == "LAIN") {
+            $user = UserLogin::where('username',$userinfo['username'])->get();
+            $changed = false;
+            if ($userinfo['pt'] == "TIRTA"){
+                if (md5('12345') == $user[0]->password){
+                    $changed = true;
+                }
+            }
+            view()->share('changed', $changed);
 			return view ('backend.change_password');
 		} else {
 			return Redirect::to('/backend/dashboard');
@@ -48,6 +56,11 @@ class ChangePasswordController extends Controller {
         }
         if (strlen($password_baru) > 15){
             $data['error'] = "New Password must be a maximum of 15 characters";
+            return redirect('/backend/change-password')->with(['data' => $data]);
+        }
+
+        if ((md5('12345') == md5($password_baru) && ($userinfo['priv'] == "USER"))){
+            $data['error'] = "Gunakan password lain selain password default";
             return redirect('/backend/change-password')->with(['data' => $data]);
         }
 

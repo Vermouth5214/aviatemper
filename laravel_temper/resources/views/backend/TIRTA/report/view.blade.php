@@ -22,7 +22,7 @@
 		</div>
 		<div class="title_right">
 			<div class="col-md-4 col-sm-4 col-xs-8 form-group pull-right top_search">
-				<a href="<?=url('/backend/general-report');?>" class="btn-index btn btn-primary btn-block" title="Back"><i class="fa fa-arrow-left"></i>&nbsp; Back</a>
+				<a href="<?=url('/backend/general-reportt');?>" class="btn-index btn btn-primary btn-block" title="Back"><i class="fa fa-arrow-left"></i>&nbsp; Back</a>
 			</div>
 		</div>
 	</div>
@@ -48,6 +48,7 @@
 								<thead>
 									<tr>
 										<th>No</th>
+										<th>NIK</th>
 										<th>Name</th>
                                         <th>Temperature</th>
                                         <th>Time</th>
@@ -64,6 +65,7 @@
 									?>
 											<tr>
 												<td align='right' ><?=$i;?></td>
+												<td ><?=$item->nik;?></td>
 												<td ><?=$item->name;?></td>
                                                 <td ><?=$item->temperature;?></td>
                                                 <td ><?=date('H:i:s', strtotime($item->created_at));?></td>
@@ -76,6 +78,7 @@
 									?>
 											<tr>
 												<td align='right' ><?=$i;?></td>
+												<td ><?=$item->nik;?></td>
 												<td ><?=$item->name;?></td>
                                                 <td ><?=$item->temperature;?></td>
                                                 <td ><?=date('H:i:s', strtotime($item->created_at));?></td>

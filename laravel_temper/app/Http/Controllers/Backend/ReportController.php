@@ -11,16 +11,28 @@ use Redirect;
 use App\Model\Lokasi;
 use App\Model\Temperature;
 use Datatables;
+use App\Model\UserLogin;
 
 use App\Exports\ExportExcell;
 use Excel;
 
 class ReportController extends Controller {
 	public function generalReport(Request $request) {
+        $userinfo = Session::get('userinfo');
+        if (($userinfo['priv'] == "USER") && ($userinfo['priv'] == "TIRTA")){
+            return redirect('/backend/input');
+        }
+
+		//CEK JIKA USER TIRTA MENGGUNAKAN PASSWORD DEFAULT
+		$user = UserLogin::where('username',$userinfo['username'])->get();
+		if (($userinfo['priv'] == "USER") && ($userinfo['pt'] == "TIRTA") && (md5('12345') == $user[0]->password)) {
+			return redirect('/backend/change-password');
+		}
+
     	$startDate = date('d-m-Y');
         $endDate = date('d-m-Y');
         $mode = "limited";
-        $location = "All";
+        $location = "ALL";
 
         if (isset($_GET["startDate"]) || isset($_GET["endDate"]) || isset($_GET["status"]) || isset($_GET["mode"])){
 			if ((isset($_GET['startDate'])) && ($_GET['startDate'] != "")){
@@ -37,7 +49,7 @@ class ReportController extends Controller {
             }
         }
 
-        $location_all = Lokasi::where('active',1)->orderBy('kode_lokasi')->pluck('nama_lokasi','nama_lokasi');
+        $location_all = Lokasi::where('active',1)->orderBy('kode_lokasi')->pluck('nama_lokasi','nama_lokasi')->prepend('ALL','ALL');
         
 		$userinfo = Session::get('userinfo' );
         $lokasi = $userinfo['lokasi'];

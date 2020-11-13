@@ -55,10 +55,6 @@ Route::group(array('prefix' => 'backend','middleware'=> ['token_admin']), functi
     Route::get('/employee/datatable','Backend\EmployeeController@datatable');
     Route::resource('employee', 'Backend\EmployeeController');
 
-	Route::get('/general-report/datatable','Backend\ReportController@datatable');
-	Route::get('/general-report','Backend\ReportController@generalReport');
-	Route::get('/general-report/{lokasi}/{tanggal}/export','Backend\ReportController@export');
-	Route::get('/general-report/{lokasi}/{tanggal}','Backend\ReportController@show');
 });
 
 /* ALL */
@@ -74,6 +70,10 @@ Route::group(array('prefix' => 'backend','middleware'=> ['token_all']), function
 
     Route::post('/input','Backend\InputController@store');
 
+	Route::get('/general-report/datatable','Backend\ReportController@datatable');
+	Route::get('/general-report','Backend\ReportController@generalReport');
+	Route::get('/general-report/{lokasi}/{tanggal}/export','Backend\ReportController@export');
+	Route::get('/general-report/{lokasi}/{tanggal}','Backend\ReportController@show');
 });
 
 

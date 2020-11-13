@@ -72,6 +72,9 @@
                             <div class="col-12 col-sm-2">
                                 <input type="submit" class="btn btn-primary btn-block" name="submit" value="Submit">
                             </div>
+                            <div class="col-12 col-sm-2">
+                                <input type="submit" class="btn btn-success btn-block" name="export" value="Export">
+                            </div>
                         </div>
                     </form>
                 </div>		
@@ -128,6 +131,7 @@
 				{data: 'action', name: 'action', orderable: false, searchable: false}
 			],
 			responsive: true,
+            pageLength: 100,
 			order : [[ 1, "asc" ]]
 		});
 	</script>

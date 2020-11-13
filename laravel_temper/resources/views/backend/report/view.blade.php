@@ -22,7 +22,7 @@
 		</div>
 		<div class="title_right">
 			<div class="col-md-4 col-sm-4 col-xs-8 form-group pull-right top_search">
-				<a href="<?=url('/backend/general-report');?>" class="btn-index btn btn-primary btn-block" title="Back"><i class="fa fa-arrow-left"></i>&nbsp; Back</a>
+				@include('backend.elements.back_button',array('url' => '/backend/general-report'))			
 			</div>
 		</div>
 	</div>

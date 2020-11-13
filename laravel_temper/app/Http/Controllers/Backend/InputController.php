@@ -56,7 +56,11 @@ class InputController extends Controller {
 						 WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
 						 WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
 					END AS CABANG, 
-					NIK, UPPER(NAMA) AS NAMA, (NIK + '-' + UPPER(NAMA)) AS NIKNAMA
+					NIK, UPPER(NAMA) AS NAMA, (NIK + '-' + UPPER(NAMA)) AS NIKNAMA,
+					(NIK + ' - ' + UPPER(CASE WHEN VKA.CABANG LIKE '%DEAN%' THEN REPLACE(VKA.CABANG,' DEAN','') 
+					WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
+					WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
+			   END) + ' - ' + UPPER(NAMA)) AS NIKNAMACABANG
 				FROM View_IT_All_Karyawan_Aktif vka 
 				LEFT JOIN cabang c ON vka.CABANG = c.Name 
 				WHERE 
@@ -68,9 +72,9 @@ class InputController extends Controller {
 				   		 WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
 				   		 WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
 			  		END LIKE 'PUSAT%'
-				ORDER BY c.Code, CABANG			
+				ORDER BY c.Code DESC
 			");
-			$data = collect($data)->pluck('NAMA','NIKNAMA')->prepend('','');
+			$data = collect($data)->pluck('NIKNAMACABANG','NIKNAMA')->prepend('','');
 			$mode = "CABANG";
 		}
 

@@ -136,6 +136,7 @@
 				{data: 'action', name: 'action', orderable: false, searchable: false}
 			],
 			responsive: true,
+            pageLength:100,
 			order : [[ 1, "asc" ]]
 		});
 	</script>

@@ -68,11 +68,11 @@
 						<div id ="search-by-number">
 							<div class="form-group row">
 								<label class="col-form-label col-sm-2">Search</label>
-								<div class="col-sm-6 col-8">
+								<div class="col-sm-6 col-8 col-lg-4">
 									<input type="text" name="search_number" id="search-number" class="form-control">
 									<input type="hidden" name="search_number_real" id="search-number-real" class="form-control">
 								</div>
-								<div class="col-sm-4 col-4">
+								<div class="col-sm-4 col-4 col-lg-2">
 									<button class="btn btn-info btn-block" id='btn-clear'>Clear</button>
 								</div>
 							</div>
@@ -85,7 +85,7 @@
 						</div>
 						<div class="form-group row" id='search-by-name'>
 							<label class="col-form-label col-sm-2">Search</label>
-							<div class="col-sm-8">
+							<div class="col-sm-8 col-lg-4">
 								{{
 								Form::select(
 									'search_name',
@@ -100,13 +100,13 @@
 						</div>
 						<div class="form-group row">
 							<label class="col-form-label col-sm-2">Temperature</label>
-							<div class="col-sm-4 col-5">
+							<div class="col-sm-4 col-5 col-lg-3">
 								<input type="tel" name="temperature" id="temperature" class="form-control">
 							</div>
 						</div>
 						<div class="ln_solid"></div>
 						<div class="form-group">
-							<div class="col-sm-12">
+							<div class="col-sm-12 col-lg-4 offset-lg-2">
 								<button type="submit" class="btn btn-primary btn-block btn-submit">Submit </button>
 							</div>
 						</div>
@@ -121,6 +121,16 @@
 @section('css')
     <!-- select2 -->
     <link href="<?=url('vendors/select2/dist/css/select2.min.css');?>" rel="stylesheet">
+	<style>
+		.btn-submit{
+			height : 80px;
+		}
+		@media (min-width: 992px) { 
+			.btn-submit{
+				height : 40px;
+			}
+		}
+	</style>	
 @endsection
 
 <!-- JAVASCRIPT -->
@@ -217,6 +227,7 @@
 
 		$('.btn-submit').on('click', function(){
 			$('.error-alert').html("");
+			$('.btn-submit').attr('disabled', true);
 			var temperature = $('#temperature').val();
 			if (temperature == ''){
 				alert('Temperature must be filled');
@@ -230,9 +241,9 @@
 			$.ajax({
 				type: "POST",
 				url: url,
+				timeout: 2500,
 				data: frm_data,
 				success: function(response){ 
-					$('.btn-submit').attr('disabled', true);
 					if (response.status) {
 						$('.error-alert').html("");
 						$('.error-alert').append('<div class="alert alert-success alert-dismissible fade show"><button type="button" class="close" data-dismiss="alert">&times;</button>Data saved successfully</div>');
@@ -257,14 +268,15 @@
 
 						$('#temperature').val('');
 					}
-					$('.btn-submit').removeAttr('disabled');
 				}, 
 				error: function(response){
-					// console.log(response);
+					console.log(response);
+					$('.btn-submit').removeAttr('disabled');
 					alert('Submit Error. Please try again.');
 					location.reload();
 				}
-			});			
+			});
+			$('.btn-submit').removeAttr('disabled');	
 			return false;
 		});
 

@@ -110,7 +110,7 @@
     ?>
     <?php
         // SUPER ADMIN //
-        if (($userinfo['priv'] == "VSUPER") || ($userinfo['priv'] == "VADM")):
+        if (($userinfo['priv'] == "VSUPER") || ($userinfo['priv'] == "VADM") || (($userinfo['priv'] == "USER") && ($userinfo['pt'] == "TIRTA"))):
     ?>
     <div class="menu_section">
         <h3>REPORT</h3>

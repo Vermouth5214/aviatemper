@@ -13,6 +13,7 @@ use App\Model\Temperature;
 use Datatables;
 
 use App\Exports\ExportExcell;
+use App\Exports\GeneralReport;
 use Excel;
 
 class ReportTController extends Controller {
@@ -20,7 +21,7 @@ class ReportTController extends Controller {
     	$startDate = date('d-m-Y');
         $endDate = date('d-m-Y');
         $mode = "limited";
-        $location = "PUSAT";
+        $location = "ALL";
 
         if (isset($_GET["startDate"]) || isset($_GET["endDate"]) || isset($_GET["status"]) || isset($_GET["mode"])){
 			if ((isset($_GET['startDate'])) && ($_GET['startDate'] != "")){
@@ -37,7 +38,11 @@ class ReportTController extends Controller {
             }
         }
 
-        $location_all = Lokasi::where('active',1)->orderBy('kode_lokasi')->pluck('nama_lokasi','nama_lokasi');
+        if (isset($_GET['export'])){
+            return Excel::download(new GeneralReport($startDate, $endDate, $mode, $location), 'General Report '.date('d-m-Y H:i:s').'.xlsx');
+        }
+
+        $location_all = Lokasi::where('active',1)->orderBy('kode_lokasi')->pluck('nama_lokasi','nama_lokasi')->prepend('ALL','ALL');
         
 		$userinfo = Session::get('userinfo' );
         $lokasi = $userinfo['lokasi'];
@@ -73,52 +78,84 @@ class ReportTController extends Controller {
         }
 
         $query = '
-            SELECT lokasi, count(id) as total, date(created_at) as created_at FROM temperature
+            SELECT lokasi, count(id) as total, DATE_FORMAT(date(created_at),"%Y-%m-%d") as created_at FROM temperature where 1=1
         ';
         if ($mode != "all"){
-            $query = $query . " where ((created_at >= '".date('Y-m-d 00:00:00',strtotime($startDate)). "' and created_at <= '".date('Y-m-d 23:59:59',strtotime($endDate))."'))";
+            $query = $query . " and ((created_at >= '".date('Y-m-d 00:00:00',strtotime($startDate)). "' and created_at <= '".date('Y-m-d 23:59:59',strtotime($endDate))."'))";
         }
-
+        
         if (strtoupper($location) != "ALL"){
             $query = $query . " and lokasi='".$location."'";
-        }
 
-		$userinfo = Session::get('userinfo');
-		if (($userinfo['priv'] == 'VTTIRTA') || ($userinfo['priv'] == 'VHTIRTA')){
-            if ((strtoupper($location) == "PUSAT")){
-                $data = DB::connection('DB-ORANGE')->select("
-                    SELECT UPPER(NAMA) AS NAMA
-                    FROM View_IT_All_Karyawan_Aktif vka 
-                    LEFT JOIN cabang c ON vka.CABANG = c.Name 
-                    WHERE 
-                        CASE WHEN VKA.CABANG LIKE '%DEAN%' THEN REPLACE(VKA.CABANG,' DEAN','') 
-                                WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
-                                WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
-                          END LIKE 'PUSAT%'
-                ");
-                $query = $query . " and name in (";
-                foreach ($data as $pegawai):
-                    $query = $query . "'".$pegawai->NAMA."',";
-                endforeach;
-                $query = substr($query, 0, -1);
-                $query = $query . ")";
+            $userinfo = Session::get('userinfo');
+            if (($userinfo['priv'] == 'VTTIRTA') || ($userinfo['priv'] == 'VHTIRTA')){
+                if ((strtoupper($location) == "PUSAT")){
+                    $data = DB::connection('DB-ORANGE')->select("
+                        SELECT UPPER(NAMA) AS NAMA
+                        FROM View_IT_All_Karyawan_Aktif vka 
+                        LEFT JOIN cabang c ON vka.CABANG = c.Name 
+                        WHERE 
+                            CASE WHEN VKA.CABANG LIKE '%DEAN%' THEN REPLACE(VKA.CABANG,' DEAN','') 
+                                    WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
+                                    WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
+                              END LIKE 'PUSAT%'
+                    ");
+                    $query = $query . " and name in (";
+                    foreach ($data as $pegawai):
+                        $query = $query . "'".$pegawai->NAMA."',";
+                    endforeach;
+                    $query = substr($query, 0, -1);
+                    $query = $query . ")";
+                }
             }
+        } else {
+            $query = $query . "and lokasi NOT LIKE 'PUSAT%'";
         }
+        $query = $query . ' group by lokasi, DATE_FORMAT(date(created_at),"%Y-%m-%d")';
 
-        $query = $query . " group by lokasi, date(created_at)";
+        if (strtoupper($location) == "ALL"){
+            $query = $query . " UNION ALL ";
+
+            $query = $query . '
+                SELECT lokasi, count(id) as total, DATE_FORMAT(date(created_at),"%Y-%m-%d") as created_at FROM temperature where 1=1
+            ';
+            if ($mode != "all"){
+                $query = $query . " and ((created_at >= '".date('Y-m-d 00:00:00',strtotime($startDate)). "' and created_at <= '".date('Y-m-d 23:59:59',strtotime($endDate))."'))";
+            }
+
+            $data = DB::connection('DB-ORANGE')->select("
+                SELECT UPPER(NAMA) AS NAMA
+                FROM View_IT_All_Karyawan_Aktif vka 
+                LEFT JOIN cabang c ON vka.CABANG = c.Name 
+                WHERE 
+                    CASE WHEN VKA.CABANG LIKE '%DEAN%' THEN REPLACE(VKA.CABANG,' DEAN','') 
+                            WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
+                            WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
+                        END LIKE 'PUSAT%'
+            ");
+            $query = $query . " and name in (";
+            foreach ($data as $pegawai):
+                $query = $query . "'".$pegawai->NAMA."',";
+            endforeach;
+            $query = substr($query, 0, -1);
+            $query = $query . ")";
+
+            $query = $query . "and lokasi LIKE 'PUSAT%'";
+            $query = $query . ' group by lokasi, DATE_FORMAT(date(created_at),"%Y-%m-%d")';
+        }
 
         $data = collect(DB::connection('mysql')
                     ->select($query));
 
+       
         return Datatables::of($data)
             ->editColumn('created_at', function($data) {
                 return date('d-m-Y', strtotime($data->created_at));
             })
             ->addColumn('action', function ($data) {
 				$segment =  \Request::segment(2);
-
-                $url = url('backend/general-reportt/'.$data->lokasi.'/'.$data->created_at);
-                $url_export = url('backend/general-reportt/'.$data->lokasi.'/'.$data->created_at.'/export');
+                $url = url('backend/general-reportt/'.$data->lokasi.'/'.date('Y-m-d', strtotime($data->created_at)));
+                $url_export = url('backend/general-reportt/'.$data->lokasi.'/'.date('Y-m-d', strtotime($data->created_at)).'/export');
 
                 $view = "<a class='btn-action btn btn-primary' href='".$url."' title='View'><i class='fa fa-eye'></i></a>";
                 $export = "<a class='btn-action btn btn-success' href='".$url_export."' title='Export'>Export</a>";

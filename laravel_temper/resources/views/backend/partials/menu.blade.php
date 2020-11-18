@@ -48,6 +48,14 @@
                     </li>
                 </ul>
             </div>
+            <div class="menu_section">
+                <h3>INPUT</h3>
+                <ul class="nav side-menu">
+                    <li class="{{ ($segment == 'input-admin' ? 'active' : '') }}">
+                        <a href="<?=url('backend/input-admin');?>"><i class="fa fa-table"></i> Input Data</a>
+                    </li>
+                </ul>
+            </div>
     <?php
         endif;
     ?>

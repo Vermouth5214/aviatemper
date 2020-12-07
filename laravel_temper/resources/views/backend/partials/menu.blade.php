@@ -48,6 +48,17 @@
                     </li>
                 </ul>
             </div>
+            <div class="menu_section">
+                <h3>INPUT</h3>
+                <ul class="nav side-menu">
+                    <li class="{{ ($segment == 'input-admin' ? 'active' : '') }}">
+                        <a href="<?=url('backend/input-admin');?>"><i class="fa fa-table"></i> Input Data</a>
+                    </li>
+                    <li class="{{ ($segment == 'inject-data' ? 'active' : '') }}">
+                        <a href="<?=url('backend/inject-data');?>"><i class="fa fa-table"></i> Inject Data</a>
+                    </li>
+                </ul>
+            </div>
     <?php
         endif;
     ?>

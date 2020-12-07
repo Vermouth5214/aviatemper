@@ -82,6 +82,13 @@ Route::group(array('prefix' => 'backend','middleware'=> ['token_it_tirta']), fun
     Route::get('/usert/datatable','Backend\UserTLoginController@datatable');
     Route::resource('usert', 'Backend\UserTLoginController');
 
+    Route::get('/input-admin','Backend\InputAdminController@index');
+    Route::get('/input-admin/search/{id}','Backend\InputAdminController@search');
+    Route::post('/input-admin','Backend\InputAdminController@store');
+
+    Route::get('/inject-data','Backend\InjectDataController@index');
+    Route::post('/inject-data','Backend\InjectDataController@store');
+
 });
 
 Route::group(array('prefix' => 'backend','middleware'=> ['token_hrd_tirta']), function()

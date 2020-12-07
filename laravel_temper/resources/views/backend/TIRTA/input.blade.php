@@ -1,8 +1,9 @@
 <?php
 	$breadcrumb = [];
 	$breadcrumb[0]['title'] = 'Dashboard';
-	$breadcrumb[0]['url'] = url('backend/input');
+	$breadcrumb[0]['url'] = url('backend/input-admin');
 	$breadcrumb[1]['title'] = 'Input Data';
+	$date_check = date('d-m-Y');
 ?>
 
 <!-- LAYOUT -->
@@ -35,65 +36,43 @@
 					{{ Form::open(['class' => 'form-horizontal form-label-left', 'id' => 'formInput']) }}
 						{!! csrf_field() !!}
 						<div class="form-group row">
-							<label class="col-form-label col-sm-2">Search by</label>
-							<div class="col-sm-6">
-								<div class="form-check-inline">
-									<label class="form-check-label">
-										<?php
-											$checked = '';
-											$readonly = "disabled";
-											if ($mode == "PUSAT"){
-												$checked = "checked";
-												$readonly = "";
-											}
-										?>
-								  		<input type="radio" class="form-check-input" name="mode" <?=$checked;?> <?=$readonly;?> value="card"> Card Number
-									</label>
-							  	</div>
-								<div class="form-check-inline">
-									<label class="form-check-label">
-										<?php
-											$checked = '';
-											$readonly = "";
-											if ($mode == "CABANG"){
-												$checked = "checked";
-												$readonly = "disabled";
-											}
-										?>
-								  		<input type="radio" class="form-check-input" name="mode" <?=$checked;?> <?=$readonly;?> value="name"> Name
-									</label>
-							  	</div>
+							<label class="col-form-label col-sm-2">Location</label>
+							<div class="col-sm-3 col-lg-4">
+								{{
+                                    Form::select(
+                                        'lokasi',
+                                        $lokasi,
+                                        '',
+                                        array(
+                                            'class' => 'form-control',
+                                            'required' => 'required',
+                                            'id' => 'lokasi'
+                                        ))
+								}}								
 							</div>
-						</div>
-						<div id ="search-by-number">
-							<div class="form-group row">
-								<label class="col-form-label col-sm-2">Search</label>
-								<div class="col-sm-6 col-8 col-lg-4">
-									<input type="text" name="search_number" id="search-number" class="form-control">
-									<input type="hidden" name="search_number_real" id="search-number-real" class="form-control">
-								</div>
-								<div class="col-sm-4 col-4 col-lg-2">
-									<button class="btn btn-info btn-block" id='btn-clear'>Clear</button>
-								</div>
-							</div>
-							<div class="form-group row">
-								<label class="col-form-label col-sm-2">Name</label>
-								<div class="col-sm-6 col-8 name" id="name">
-									
-								</div>
-							</div>
-						</div>
+                        </div>
+						<div class="form-group row">
+							<label class="col-form-label col-sm-2">Date</label>
+                            <div class="col-sm-8 col-lg-4">
+                                <div class='input-group date' id='myDatepicker'>
+                                    <input type='text' class="form-control" name="date_check" value=<?=$date_check;?> />
+                                    <span class="input-group-addon">
+                                        <span class="fa fa-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
 						<div class="form-group row" id='search-by-name'>
 							<label class="col-form-label col-sm-2">Search</label>
 							<div class="col-sm-8 col-lg-8">
 								{{
-								Form::select(
-									'search_name',
-									$data,
-									'',
-									array(
-										'class' => 'form-control',
-										'id' => 'search-name'
+									Form::select(
+										'search_name',
+										$data,
+										'',
+										array(
+											'class' => 'form-control',
+											'id' => 'search-name'
 									))
 								}}
 							</div>
@@ -141,6 +120,8 @@
     <!-- select2 -->
 	<script src="<?=url('vendors/select2/dist/js/select2.min.js');?>"></script>
 	<script>
+		$('#lokasi').select2();
+
 		$('#search-name').select2({
 			closeOnSelect: true
 		});
@@ -148,6 +129,10 @@
         $('#search-name').on('select2:close', function () {
 			$('#temperature').focus();
         })		
+
+        $('#myDatepicker').datetimepicker({
+            format: 'DD-MM-YYYY'
+        });
 
 		$('#btn-clear').on('click', function(e){
 			$('#search-number').val('').focus();
@@ -195,35 +180,36 @@
 			}
 		})
 
-		function show(){
-			$('#search-by-name').addClass('d-none');
-			$('#search-by-number').addClass('d-none');
-			$('#search-number').removeAttr("required");
-			$('#search-name').removeAttr("required");
-			var mode = $('input[name="mode"]:checked').val();
-			if (mode == "card"){
-				$('#search-by-name').addClass('d-none');
-				$('#search-by-number').removeClass('d-none');
-				$('#search-number').attr("required", "true");
-				$('#search-number').focus();
-			}
-			if (mode == "name"){
-				$('#search-by-name').removeClass('d-none');
-				$('#search-by-number').addClass('d-none');
-				$('#search-name').attr("required", "true");
-				$('#search-name').focus();
-			}
-		}
-		show();
-
-		$('input[type=radio][name="mode"]').change(function() {
-			show();
-		});
-
 		$('#temperature').inputmask({
             mask: '39.9',
 			placeholder: '0',
         });
+
+		$("#lokasi").on("change", function(){
+			var url = "<?php echo url('/'); ?>/backend/input-admin/search/" + $(this).val();
+			$.ajax({
+				type: "GET",
+				url: url,
+				success: function(response){ 
+					if (response.status) {
+
+						$('#search-name').html(response.data);
+						$('#search-name').select2({
+							closeOnSelect: true
+						});
+					}
+					else {
+						$('.error-alert').html("");
+						$('.error-alert').append('<div class="alert alert-danger alert-dismissible fade show"><button type="button" class="close" data-dismiss="alert">&times;</button>Data Not Found</div>');
+
+						$('#temperature').val('');
+					}
+				}, 
+				error: function(response){
+					console.log(response);
+				}
+			});
+		})
 
 		$('.btn-submit').on('click', function(){
 			$('.error-alert').html("");
@@ -236,7 +222,7 @@
 			}
 
 			//ajax submit
-			var url = "<?php echo url('/'); ?>/backend/input";
+			var url = "<?php echo url('/'); ?>/backend/input-admin";
 			var frm_data = $("#formInput").serialize();
 			$.ajax({
 				type: "POST",
@@ -249,18 +235,12 @@
 						$('.error-alert').append('<div class="alert alert-success alert-dismissible fade show"><button type="button" class="close" data-dismiss="alert">&times;</button>Data saved successfully</div>');
 
 						//clear data
-						$('#search-number').val('').focus();
-						$('#search-number-real').val('');
-						$("#name").html('');
 						$('#search-name').val('');
 						$('#temperature').val('');
 						
-						var mode = $('input[name="mode"]:checked').val();
-						if (mode == "name"){
-							$('#search-name').select2({
-								closeOnSelect: true
-							});
-						}
+						$('#search-name').select2({
+							closeOnSelect: true
+						});
 					}
 					else {
 						$('.error-alert').html("");

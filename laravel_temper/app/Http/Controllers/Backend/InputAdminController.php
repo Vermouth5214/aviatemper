@@ -55,30 +55,69 @@ class InputAdminController extends Controller {
 			'data' => '',
 		];
 
-		$pegawai = DB::connection('DB-ORANGE')->select("
-			SELECT c.Code AS [KODE CABANG], 
-				CASE WHEN VKA.CABANG LIKE '%DEAN%' THEN REPLACE(VKA.CABANG,' DEAN','') 
-						WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
-						WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
-				END AS CABANG, 
-				NIK, UPPER(NAMA) AS NAMA, (NIK + '-' + UPPER(NAMA)) AS NIKNAMA,
-				(NIK + ' - ' + UPPER(CASE WHEN VKA.CABANG LIKE '%DEAN%' THEN REPLACE(VKA.CABANG,' DEAN','') 
-				WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
-				WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
-			END) + ' - ' + UPPER(NAMA) + ' - ' + UPPER(JABATAN)) AS NIKNAMACABANG
-			FROM View_IT_All_Karyawan_Aktif vka 
-			LEFT JOIN cabang c ON vka.CABANG = c.Name 
-			WHERE 
-				CASE WHEN VKA.CABANG LIKE '%DEAN%' THEN REPLACE(VKA.CABANG,' DEAN','') 
-						WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
-						WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
-					END  = '".$id."' OR 
-				CASE WHEN VKA.CABANG LIKE '%DEAN%' THEN REPLACE(VKA.CABANG,' DEAN','') 
-						WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
-						WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
-				END LIKE 'PUSAT%'
-			ORDER BY c.Code DESC
-		");		
+
+		if ($id == "PUSAT"){
+			$pegawai = DB::connection('DB-ORANGE')->select("
+				SELECT c.Code AS [KODE CABANG], 
+					CASE WHEN VKA.CABANG LIKE '%DEAN%' THEN REPLACE(VKA.CABANG,' DEAN','') 
+							WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
+							WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
+					END AS CABANG, 
+					NIK, UPPER(NAMA) AS NAMA, (NIK + '-' + UPPER(NAMA)) AS NIKNAMA,
+					(NIK + ' - ' + UPPER(CASE WHEN VKA.CABANG LIKE '%DEAN%' THEN REPLACE(VKA.CABANG,' DEAN','') 
+					WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
+					WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
+				END) + ' - ' + UPPER(NAMA) + ' - ' + UPPER(JABATAN)) AS NIKNAMACABANG
+				FROM View_IT_All_Karyawan_Aktif vka 
+				LEFT JOIN cabang c ON vka.CABANG = c.Name 
+				WHERE 
+					CASE WHEN VKA.CABANG LIKE '%DEAN%' THEN REPLACE(VKA.CABANG,' DEAN','') 
+							WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
+							WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
+						END  = '".$id."' OR 
+					CASE WHEN VKA.CABANG LIKE '%DEAN%' THEN REPLACE(VKA.CABANG,' DEAN','') 
+							WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
+							WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
+					END LIKE 'PUSAT%'
+				ORDER BY c.Code DESC
+			");		
+		} else {
+			$pegawai_1 = DB::select("
+					SELECT nik as NIK, CONCAT(nik,'-',name) as NIKNAMA, CONCAT(nik, ' - ', '".$id."', ' - ', name) as NIKNAMACABANG
+					FROM temperature
+					WHERE lokasi = '".$id."'
+					AND created_at >= '2020-11-01'
+					GROUP BY CONCAT(nik,'-',name), CONCAT(nik, ' - ', '".$id."', ' - ', name), nik
+					ORDER BY name ASC
+			");
+
+			$pegawai_2 = DB::connection('DB-ORANGE')->select("
+				SELECT 
+					NIK,
+					UPPER(NAMA) AS NAMA, (NIK + '-' + UPPER(NAMA)) AS NIKNAMA,
+					(NIK + ' - ' + UPPER(CASE WHEN VKA.CABANG LIKE '%DEAN%' THEN REPLACE(VKA.CABANG,' DEAN','') 
+					WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
+					WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
+				END) + ' - ' + UPPER(NAMA) + ' - ' + UPPER(JABATAN)) AS NIKNAMACABANG
+				FROM View_IT_All_Karyawan_Aktif vka 
+				LEFT JOIN cabang c ON vka.CABANG = c.Name 
+				WHERE 
+					CASE WHEN VKA.CABANG LIKE '%DEAN%' THEN REPLACE(VKA.CABANG,' DEAN','') 
+							WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
+							WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
+						END  = '".$id."' OR 
+					CASE WHEN VKA.CABANG LIKE '%DEAN%' THEN REPLACE(VKA.CABANG,' DEAN','') 
+							WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
+							WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
+					END LIKE 'PUSAT%'
+				ORDER BY c.Code DESC
+			");		
+
+			$pegawai = array_merge($pegawai_1, $pegawai_2);
+
+			$temp = array_unique(array_column($pegawai, 'NIK'));
+			$pegawai = array_intersect_key($pegawai, $temp);
+		}
 
 		$text = "";
 		foreach ($pegawai as $pegawai_isi):

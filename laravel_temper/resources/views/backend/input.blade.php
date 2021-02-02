@@ -69,7 +69,7 @@
 							<div class="form-group row">
 								<label class="col-form-label col-sm-2">Search</label>
 								<div class="col-sm-6 col-8 col-lg-4">
-									<input type="text" name="search_number" id="search-number" class="form-control">
+									<input type="text" name="search_number" id="search-number" class="form-control" tabindex="-1" autocomplete="off">
 									<input type="hidden" name="search_number_real" id="search-number-real" class="form-control">
 								</div>
 								<div class="col-sm-4 col-4 col-lg-2">
@@ -156,7 +156,7 @@
 			return false;
 		})
 
-		$('#search-number').on('keypress', function(e){
+		$('#search-number').on('keydown', function(e){
 			if(e.which == 13) {
      		   //ajax
 				var number = $('#search-number').val();
@@ -188,6 +188,37 @@
 				return false;
 			}
 		})
+
+		$('#search-number').on('blur', function(e){
+			//ajax
+			var number = $('#search-number').val();
+			$('#search-number-real').val(number);
+			var url = "<?php echo url('/'); ?>/backend/input/search/"+number;
+			$.ajax({
+				type: "GET",
+				url: url,
+				success: function(response){ 
+					if(typeof response=="object")
+					{
+						if (response.status){
+							$("#name").html("<h5>"+response.name+"</h5>");
+						} else {
+							$("#name").html('<h5>Not Found</h5>');
+						}
+						$('#temperature').focus();
+					}
+					else
+					{
+						alert('Session expired. Please relogin');
+						window.location.reload(true);
+					}						
+				}, 
+				error: function(response){
+					console.log(response);
+				}
+			});
+			return false;
+		});
 
 		$('#temperature').on('keypress', function(e){
 			if(e.which == 13) {

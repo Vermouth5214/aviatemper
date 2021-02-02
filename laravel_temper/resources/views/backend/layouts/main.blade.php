@@ -101,6 +101,9 @@
                                         <a class="dropdown-item" href="<?=url('backend/logout');?>"><i class="fa fa-sign-out pull-right"></i> Log Out</a>
                                     </div>
                                 </li>
+                                <li>
+                                    <a href="#" style="font-size:14px;color:#004230 !important;font-weight:bold;">AVIA Temperature</a>
+                                </li>
                             </ul>
                         </nav>
                     </div>

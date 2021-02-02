@@ -49,31 +49,67 @@ class InputController extends Controller {
 
 			$mode = "PUSAT";
 		} else {
-			//ambil data orange
-			$data = DB::connection('DB-ORANGE')->select("
-				SELECT c.Code AS [KODE CABANG], 
-					CASE WHEN VKA.CABANG LIKE '%DEAN%' THEN REPLACE(VKA.CABANG,' DEAN','') 
-						 WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
-						 WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
-					END AS CABANG, 
-					NIK, UPPER(NAMA) AS NAMA, (NIK + '-' + UPPER(NAMA)) AS NIKNAMA,
+			$pegawai_1 = DB::select("
+					SELECT nik as NIK, CONCAT(nik,'-',name) as NIKNAMA, CONCAT(nik, ' - ', '".$lokasi."', ' - ', name) as NIKNAMACABANG
+					FROM temperature
+					WHERE lokasi = '".$lokasi."'
+					AND created_at >= '2020-11-01'
+					GROUP BY CONCAT(nik,'-',name), CONCAT(nik, ' - ', '".$lokasi."', ' - ', name), nik
+					ORDER BY name ASC
+			");
+
+			$pegawai_2 = DB::connection('DB-ORANGE')->select("
+				SELECT 
+					NIK,
+					UPPER(NAMA) AS NAMA, (NIK + '-' + UPPER(NAMA)) AS NIKNAMA,
 					(NIK + ' - ' + UPPER(CASE WHEN VKA.CABANG LIKE '%DEAN%' THEN REPLACE(VKA.CABANG,' DEAN','') 
 					WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
 					WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
-				END) + ' - ' + UPPER(NAMA) + ' - ' + UPPER(JABATAN)) AS NIKNAMACABANG					
+				END) + ' - ' + UPPER(NAMA) + ' - ' + UPPER(JABATAN)) AS NIKNAMACABANG
 				FROM View_IT_All_Karyawan_Aktif vka 
 				LEFT JOIN cabang c ON vka.CABANG = c.Name 
 				WHERE 
 					CASE WHEN VKA.CABANG LIKE '%DEAN%' THEN REPLACE(VKA.CABANG,' DEAN','') 
-						 WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
-						 WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
-					   END  = '".$lokasi."' OR 
+							WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
+							WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
+						END  = '".$lokasi."' OR 
 					CASE WHEN VKA.CABANG LIKE '%DEAN%' THEN REPLACE(VKA.CABANG,' DEAN','') 
-				   		 WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
-				   		 WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
-			  		END LIKE 'PUSAT%'
+							WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
+							WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
+					END LIKE 'PUSAT%'
 				ORDER BY c.Code DESC
-			");
+			");		
+
+			$pegawai = array_merge($pegawai_1, $pegawai_2);
+
+			$temp = array_unique(array_column($pegawai, 'NIK'));
+			$data = array_intersect_key($pegawai, $temp);
+			
+			//ambil data orange
+			// $data = DB::connection('DB-ORANGE')->select("
+			// 	SELECT c.Code AS [KODE CABANG], 
+			// 		CASE WHEN VKA.CABANG LIKE '%DEAN%' THEN REPLACE(VKA.CABANG,' DEAN','') 
+			// 			 WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
+			// 			 WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
+			// 		END AS CABANG, 
+			// 		NIK, UPPER(NAMA) AS NAMA, (NIK + '-' + UPPER(NAMA)) AS NIKNAMA,
+			// 		(NIK + ' - ' + UPPER(CASE WHEN VKA.CABANG LIKE '%DEAN%' THEN REPLACE(VKA.CABANG,' DEAN','') 
+			// 		WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
+			// 		WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
+			// 	END) + ' - ' + UPPER(NAMA) + ' - ' + UPPER(JABATAN)) AS NIKNAMACABANG					
+			// 	FROM View_IT_All_Karyawan_Aktif vka 
+			// 	LEFT JOIN cabang c ON vka.CABANG = c.Name 
+			// 	WHERE 
+			// 		CASE WHEN VKA.CABANG LIKE '%DEAN%' THEN REPLACE(VKA.CABANG,' DEAN','') 
+			// 			 WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
+			// 			 WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
+			// 		   END  = '".$lokasi."' OR 
+			// 		CASE WHEN VKA.CABANG LIKE '%DEAN%' THEN REPLACE(VKA.CABANG,' DEAN','') 
+			// 	   		 WHEN CABANG = 'JAKARTA SELATAN A' THEN 'JAKARTA SELATAN' 
+			// 	   		 WHEN CABANG = 'BOGOR A' THEN 'BOGOR' ELSE CABANG 
+			//   		END LIKE 'PUSAT%'
+			// 	ORDER BY c.Code DESC
+			// ");
 			$data = collect($data)->pluck('NIKNAMACABANG','NIKNAMA')->prepend('','');
 			$mode = "CABANG";
 		}
@@ -96,7 +132,7 @@ class InputController extends Controller {
 			SELECT bcs.[CARDNO], bcs.[FNAME]
 			FROM [BADGE_CARD_SEARCH] bcs, [BADGE_CARD_ALL] bca
 			where bcs.[CARDNO] = bca.[CARDNO] 
-			and [COMPANY_NAM] not like 'AIC%' and [COMPANY_NAM] <> 'LobbyWorks Visitors' and [COMPANY_NAM] not like 'PEMASOK' and bcs.[CARDNO] = '".$number."'
+			and [COMPANY_NAM] <> 'LobbyWorks Visitors' and [COMPANY_NAM] not like 'PEMASOK' and bcs.[CARDNO] = '".$number."'
 		");
 
 		if (count($pegawai)){
@@ -134,7 +170,7 @@ class InputController extends Controller {
 				SELECT bcs.[CARDNO], bcs.[FNAME]
 				FROM [BADGE_CARD_SEARCH] bcs, [BADGE_CARD_ALL] bca
 				where bcs.[CARDNO] = bca.[CARDNO] 
-				and [COMPANY_NAM] not like 'AIC%' and [COMPANY_NAM] <> 'KELUARGA' and [COMPANY_NAM] <> 'LobbyWorks Visitors' and [COMPANY_NAM] not like 'PEMASOK' and bcs.[CARDNO] = '".$number."'
+				and [COMPANY_NAM] <> 'KELUARGA' and [COMPANY_NAM] <> 'LobbyWorks Visitors' and [COMPANY_NAM] not like 'PEMASOK' and bcs.[CARDNO] = '".$number."'
 			");
 	
 			if (count($pegawai)){

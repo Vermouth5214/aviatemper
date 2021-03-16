@@ -73,6 +73,9 @@
             <li class="{{ ($segment == 'general-reportt' ? 'active' : '') }}">
                 <a href="<?=url('backend/general-reportt');?>"><i class="fa fa-table"></i> General Report</a>
             </li>
+            <li class="{{ ($segment == 'active-employee-report' ? 'active' : '') }}">
+                <a href="<?=url('backend/active-employee-report');?>"><i class="fa fa-table"></i> Active Employee Report</a>
+            </li>
         </ul>
     </div>
     <?php
@@ -128,6 +131,9 @@
 		<ul class="nav side-menu">
             <li class="{{ ($segment == 'general-report' ? 'active' : '') }}">
                 <a href="<?=url('backend/general-report');?>"><i class="fa fa-table"></i> General Report</a>
+            </li>
+            <li class="{{ ($segment == 'active-employee-report' ? 'active' : '') }}">
+                <a href="<?=url('backend/active-employee-report');?>"><i class="fa fa-table"></i> Active Employee Report</a>
             </li>
         </ul>
     </div>

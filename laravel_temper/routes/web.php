@@ -73,7 +73,13 @@ Route::group(array('prefix' => 'backend','middleware'=> ['token_all']), function
 	Route::get('/general-report/datatable','Backend\ReportController@datatable');
 	Route::get('/general-report','Backend\ReportController@generalReport');
 	Route::get('/general-report/{lokasi}/{tanggal}/export','Backend\ReportController@export');
-	Route::get('/general-report/{lokasi}/{tanggal}','Backend\ReportController@show');
+    Route::get('/general-report/{lokasi}/{tanggal}','Backend\ReportController@show');
+    
+	Route::get('/active-employee-report/datatable','Backend\ReportController@activeEmployee_datatable');
+	Route::get('/active-employee-report','Backend\ReportController@activeEmployeeReport');
+    Route::get('/active-employee-report/{lokasi}/{tanggal}/export','Backend\ReportController@export_active_employee');
+	Route::get('/active-employee-report/{lokasi}/{tanggal}','Backend\ReportController@show_active_employee');
+
 });
 
 
